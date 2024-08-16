@@ -1,0 +1,187 @@
+﻿@page "/Sales"
+
+<PageTitle>Sales</PageTitle>
+
+@using Microsoft.AspNetCore.Components.QuickGrid;
+
+
+<div class="wrapper container border py">
+
+    <header>
+        <h1>Sales</h1>
+    </header>
+
+    <body>
+
+        <section>
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <select class="form-select form-control" id="category" disabled="@isSaleCompleted" value="@CategoryId" @onchange="OnHandleSelectedCategory">
+                        <option selected value="0">Category...</option>
+
+                        @if (CategoryList != null)
+                        {
+                            @foreach (var category in CategoryList)
+                            {
+                                <option value="@category.CategoryID">@category.Description</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-5">
+                    <select class="form-select form-control" id="product" disabled="@isSaleCompleted"  @onchange="(e) => OnProductSelected(Convert.ToInt32(e.Value))">
+                        <option selected value="0">Product...</option>
+                        
+                        @if (PartsList != null)
+                        {
+                            @foreach(var part in PartsList)
+                            {
+                                <option value="@part.PartID">@part.Description</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <InputNumber class="form-control" id="quantity" @bind-Value="@Quantity" disabled="@isSaleCompleted" />
+                </div>
+
+                <div class="col-2">
+                    <MudBlazor.MudButton Class="btn btn-primary" Style="width: 90px; padding: .75rem" @onclick="(() => CreateNewSaleDetail())" disabled="@isSaleCompleted">+ Add</MudBlazor.MudButton>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            @if(SaleDetailList == null)
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                </table>
+            }
+            else
+            {
+                <div>
+                    <QuickGrid Items="SaleDetailList.AsQueryable()" Class="quickgrid-row-divider">
+                        <PropertyColumn Title="Item" Property="@(s => s.Description)" Class="col-5"/>
+                        <TemplateColumn Title="Qty" Class="col-3">
+                            <div class="d-flex justify-content-between px-4">
+                                <MudBlazor.MudButton Class="btn-remove btn-outline-primary" @onclick="() => RemovePart(context.PartID)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                    </svg>
+                                </MudBlazor.MudButton>
+                                <InputNumber class="form-control" style="width: 40%; text-align: center;" id="quantity" @bind-Value="@context.Quantity" />
+                                <MudBlazor.MudButton Class="btn-outline-primary btn-update" @onclick="() => RefreshPart(context.PartID)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                                    </svg>
+                                </MudBlazor.MudButton>
+                            </div>
+                        </TemplateColumn>
+                        <PropertyColumn Title="Price" Property="@(s => s.SellingPrice)" Class="sales-table-col col-2 text-center"/>
+                        <PropertyColumn Property="@(s => s.Total)" Class="col-2 text-center" />
+
+                    </QuickGrid>
+                </div>
+            }
+        </section>
+
+        <section>
+            <div class="row">
+                <div class="col-4 sales-functions align-items-center">
+                    <MudBlazor.MudButton Class="btn btn-success" Style="width: 60%; padding: 3rem 0" disabled="@isSaleCompleted" @onclick="() => OnCheckout()">Checkout</MudBlazor.MudButton>
+                    <div class="row-cols-2 d-flex">
+                        <label for="sale-invoice" class="form-label col-5">Sale Invoice #</label>
+                        <InputNumber class="form-control w-25" id="sale-invoice" @bind-Value="@SaleId" />
+                    </div>              
+                    <div class="row d-flex col-12">
+                        <InputRadioGroup Name="payment-type" disabled="@isSaleCompleted"  @bind-Value="NewSale.PaymentType">
+
+                            @if (PaymentTypeList !=null)
+                            {
+                                foreach(var paymentType in PaymentTypeList) 
+                                {
+                                    <div class="col-4 row-cols-3 d-flex justify-content-between">
+                                        <label for="payment-cash" class="form-label col-2">@paymentType</label>
+                                        <InputRadio  Value="@paymentType" />
+                                    </div>
+                                }
+                            }
+
+                        </InputRadioGroup>
+
+                    </div>
+                </div>
+                <div class="col-4 sales-functions align-items-center">
+                    <InputText class="form-control w-50 " style="border: 2px solid;" id="coupon" @bind-Value="CouponName" />
+                    <MudBlazor.MudButton Class="btn btn-light" Style="width: 50%; padding: .75rem 0; border: 2px solid;" disabled="@isSaleCompleted" @onclick="() => OnVerifyCoupon(CouponName)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg mx-2" viewBox="0 0 16 16">
+                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                        </svg>Verify
+                    </MudBlazor.MudButton>
+                    <InputNumber class="form-control w-50 text-center" disabled id="discount-percentage" @bind-Value="@NewSale.DiscountPercent" />
+
+                    <MudBlazor.MudButton Class="btn btn-light" Style="width: 50%; padding-top: .75rem; border: 2px solid;" disabled="@isSaleCompleted" @onclick="() => OnEmptyCart()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart-fill mx-2" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                        </svg>Clear Cart
+                    </MudBlazor.MudButton>
+                </div>
+                <div class="col-4 sales-functions px-3">
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-subtotal" class="form-label col-3">Subtotal</label>
+                        <InputNumber class="form-control w-50 text-end" disabled id="sale-subtotal" @bind-Value="@SaleSubTotal" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-tax" class="form-label col-3">Tax</label>
+                        <InputNumber class="form-control w-50 text-end" disabled id="sale-tax" @bind-Value="@NewSale.TaxAmount" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-discount" class="form-label col-3">Discount</label>
+                        <InputNumber class="form-control w-50 text-end" disabled id="sale-discount" @bind-Value="@Discount" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-total" class="form-label col-3">Total</label>
+                        <InputNumber class="form-control w-50 text-end"  disabled id="sale-total" @bind-Value="@NewSale.SubTotal" />
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </body>
+    <footer>
+        @if (hasFeedback)
+        {
+            <div class="alert alert-info fw-bold">@feedbackMessage</div>
+        }
+
+        @if (hasError)
+        {
+            <div class="alert alert-danger ">
+
+                @errorMessage
+                <ul>
+                    @foreach (string detail in errorDetails)
+                    {
+                        <li>@detail</li>
+                    }
+                </ul>
+
+            </div>
+
+        }
+    </footer>
+</div>

@@ -1,0 +1,121 @@
+﻿@page "/RefundReturns"
+
+<PageTitle>Refunds and Returns</PageTitle>
+
+@using Microsoft.AspNetCore.Components.QuickGrid;
+@using BlazorDialog;
+
+<h3>Refunds and Returns</h3>
+
+<div class="wrapper container border py-2">
+    <header><h1>Returns</h1></header>
+    <body>
+        <section>
+            <div class="row">
+                <div class="row-cols-2 d-flex col-6 align-items-center">
+                    <label for="sale-invoice" class="form-label col-3">Sale Invoice #</label>
+                    <InputNumber class="form-control w-50" id="sale-invoice" @bind-Value="@SaleID" />
+                </div>
+                <div class="buttons-container col-6">
+                    <MudBlazor.MudButton Class="btn btn-primary col-5" Style="width: 200px" @onclick="() => Search(SaleID)">Lookup Sale</MudBlazor.MudButton>
+                    <MudBlazor.MudButton Class="btn btn-light col-5 " Style="width: 200px; border: 1.5px solid" @onclick="() => Clear()">Clear</MudBlazor.MudButton>
+                </div>
+            </div>
+        </section>
+        <section>
+            @if (SaleID == 0)
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Item</th>
+                            <th>Ordered Qty</th>
+                            <th>Price</th>
+                            <th>Return Qty</th>
+                            <th>Ref</th>
+                            <th>Quantity</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                </table>
+            }
+            else
+            {
+                <QuickGrid Items="saleRefundDetailList.AsQueryable()" Class="quickgrid-row-divider">
+                    <PropertyColumn Title="Item" Property="@(srd => srd.Description)"/>
+                    <PropertyColumn Title="Price" Property="@(srd => srd.SellingPrice)" Class="text-center" />
+                    <PropertyColumn Title="Return Qty" Property="@(srd => srd.ReturnQuantity)" Class="text-center" />
+                    <TemplateColumn Title="Refundable" Class="text-center">
+                        <InputCheckbox @bind-Value="context.Refundable" class="form-check-input form-control-sm px-3" id="isRefundable"></InputCheckbox>
+                        </TemplateColumn>
+                    <TemplateColumn Title="Quantity" Class="col-2 text-center ">
+                        <InputNumber class="form-control" id="quantity" style="width: 50%; text-align: center; margin: auto;" @bind-Value="@Qty" />
+                    </TemplateColumn>
+                    <TemplateColumn Title="Reason" Class="text-center">
+                        <InputText class="form-control" id="reason" @bind-Value="@context.Reason" />
+                    </TemplateColumn>
+
+                </QuickGrid>
+            }
+
+              
+           
+         
+        </section>
+        <section>
+            <div class="row d-flex justify-content-center">
+                <div class="col-3 sales-functions">
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-subtotal" class="form-label col-4">Subtotal</label>
+                        <InputNumber class="form-control w-50 text-end" id="sale-subtotal" @bind-Value="@SaleRefund.SubTotal" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-tax" class="form-label col-4">Tax</label>
+                        <InputNumber class="form-control w-50 text-end" id="sale-tax" @bind-Value="@SaleRefund.TaxAmount" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-discount" class="form-label col-4">Discount</label>
+                        <InputNumber class="form-control w-50 text-end" id="sale-discount" @bind-Value="@Discount" />
+                    </div>
+                    <div class="row-cols-2 d-flex ">
+                        <label for="sale-total" class="form-label col-4">Total</label>
+                        <InputNumber class="form-control w-50 text-end" id="sale-total" @bind-Value="@SaleTotal" />
+                    </div>
+                </div>
+
+                <div class="col-3 sales-functions d-flex flex-column align-items-center gap-3">
+                    <MudBlazor.MudButton Class="btn btn-success" Style="width: 50%" @onclick="() => OnProcessRefund()">Refund</MudBlazor.MudButton>
+                                          
+                        <InputNumber class="form-control" style="text-align: center; width: 40%" id="discount" @bind-Value="@SaleRefund.DiscountPercent" />
+                   
+                    <div class="row-cols-2 d-flex flex-wrap justify-content-center">
+                        <label for="refund-id" class="form-label col-6">Sale Invoice #</label>
+                        <InputNumber class="form-control" style="text-align: center; width: 40%" id="refund-id" @bind-Value="@SaleID" />
+                    </div>
+                </div> 
+            </div>
+        </section>
+    </body>
+    <footer>
+        @if (hasFeedback)
+        {
+            <div class="alert alert-info fw-bold">@feedbackMessage</div>
+        }
+
+        @if (hasError)
+        {
+            <div class="alert alert-danger ">
+
+                @errorMessage
+                <ul>
+                    @foreach (string detail in errorDetails)
+                    {
+                        <li>@detail</li>
+                    }
+                </ul>
+
+            </div>
+        }
+    </footer>
+</div>

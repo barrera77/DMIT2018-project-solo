@@ -1,0 +1,99 @@
+﻿/*Table styles*/
+::deep tr:nth-child(even) {
+    background: rgba(255,255,255,0.4);
+}
+
+::deep tbody tr {
+    height: 3.5rem;
+}
+
+::deep table {
+    width: 100%;
+}
+
+.sales-table-col {
+    text-align: center;
+}
+
+::deep thead th, thead td {
+    border-bottom-width: 2px;
+}
+
+.page-size-chooser {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+    .page-size-chooser select {
+        margin: 0 1rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+::deep .quickgrid-row-divider tbody tr {
+    border: 1px solid #dee2e6;
+    border-left: none;
+    border-right: none;
+}
+
+::deep th div {
+    margin: auto;
+}
+
+/*End table styles*/
+
+.wrapper {
+    padding: 1rem;
+    
+}
+section {
+    width: 80%;
+    margin: auto;
+}
+::deep .btn {
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.wrapper section {
+    margin-bottom: 1.5rem;
+}
+
+ .sales-functions {
+     display: flex;
+     flex-direction: column;
+     gap: 2rem;
+     
+}
+
+ .sales-functions ::deep .form-control {
+     border: none;
+ }
+
+.sales-functions label {
+    align-content:center;
+    height: 100%;
+    font-weight: bold; 
+}
+
+svg {
+    width: 21px;
+    height: 20px;
+}
+
+::deep .btn-remove,
+::deep .btn-update {
+    border: none;
+    padding: 0.5rem;
+    background-color: transparent;    
+}
+
+::deep .btn-remove:hover,
+::deep .btn-update:hover {
+    color: red;
+}
+
+
+
+
+
